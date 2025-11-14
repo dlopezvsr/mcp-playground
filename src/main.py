@@ -1,14 +1,33 @@
 import asyncio
-from fastmcp import Client
+from dedalus_labs import AsyncDedalus, DedalusRunner
+from dotenv import load_dotenv
+from dedalus_labs.utils.stream import stream_async
+
+load_dotenv()
+
+
+def add(a: int, b: int) -> int:
+    """Add two numbers."""
+    return a + b
+
+
+def multiply(a: int, b: int) -> int:
+    """Multiply two numbers."""
+    return a * b
 
 
 async def main():
-    async with Client("https://gofastmcp.com/mcp") as client:
-        result = await client.call_tool(
-            name="SearchFastMcp",
-            arguments={"query": "deploy a FastMCP server"}
-        )
-    print(result)
+    client = AsyncDedalus()
+    runner = DedalusRunner(client)
+
+    result = await runner.run(
+        input="Calculate (15 + 27) * 2",
+        model="openai/gpt-5",
+        tools=[add, multiply]
+    )
+
+    print(f"Result: {result.final_output}")
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
